@@ -1,3 +1,4 @@
+// Required Modules
 const express = require('express')
 const jwt = require('jsonwebtoken')
 const router = express.Router()
@@ -7,6 +8,7 @@ const Special = require('../models/special')
 const mongoose = require('mongoose')
 const db = "mongodb+srv://yusuf:yusuf@cluster0-hb6lo.mongodb.net/eventsdb?retryWrites=true&w=majority"
 
+// Connect MongoDB
 mongoose.connect(db, err => {
   if(err){
     console.log('Error! ' + err)
@@ -15,6 +17,7 @@ mongoose.connect(db, err => {
   }
 })
 
+// Middleware for verifyToken
 function verifyToken(req, res, next) {
   if(!req.headers.authorization) {
     return res.status(401).send('Unauthorized request')
@@ -31,10 +34,16 @@ function verifyToken(req, res, next) {
   next()
 }
 
+// ***
+// Routes List
+// **
+
+// Root api route
 router.get('/', (req, res) => {
   res.send('From API route')
 })
 
+// Register Route
 router.post('/register', (req, res) => {
   let userData = req.body
   let user = new User(userData)
@@ -49,6 +58,7 @@ router.post('/register', (req, res) => {
   })
 })
 
+// Login Route
 router.post('/login', (req, res) => {
   let userData = req.body
 
@@ -71,6 +81,7 @@ router.post('/login', (req, res) => {
   })
 })
 
+// Events api Route
 router.get('/events', (req,res) => {
 
   Event.find({ }, (error, data) => {
@@ -87,9 +98,29 @@ router.get('/events', (req,res) => {
 
 })
 
+// Add Special api Route
+router.post('/special/add', verifyToken, (req, res) => {
+
+  let specialData = req.body
+  let special = new Special(specialData)
+
+  special.userID = req.userId
+
+  special.save((error, data) => {
+    if(error){
+      console.log(error)
+    }else{
+      res.send(data);
+    }
+  })
+
+})
+
+// Special api Route
 router.get('/special', verifyToken, (req, res) => {
 
-  Special.find({ }, (error, data) => {
+  // get specials from userId
+  Special.find({ userID: req.userId }, (error, data) => {
     if(error){
       console.log(error)
     }else{
