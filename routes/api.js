@@ -6,6 +6,12 @@ const User = require('../models/user')
 const Event = require('../models/event')
 const Special = require('../models/special')
 const mongoose = require('mongoose')
+
+// Import Controllers
+const AuthController = require('../controllers/authcontroller')
+const EventController = require('../controllers/eventcontroller')
+const UserController = require('../controllers/usercontroller')
+
 const db = "mongodb+srv://yusuf:yusuf@cluster0-hb6lo.mongodb.net/eventsdb?retryWrites=true&w=majority"
 
 // Connect MongoDB
@@ -44,94 +50,24 @@ router.get('/', (req, res) => {
 })
 
 // Register Route
-router.post('/register', (req, res) => {
-  let userData = req.body
-  let user = new User(userData)
-  user.save((error, registeredUser) => {
-    if(error){
-      console.log(error)
-    }else{
-      let payload = {subject: registeredUser._id}
-      let token = jwt.sign(payload, 'secretKey')
-      res.status(200).send({token})
-    }
-  })
-})
+router.post('/register', AuthController.register)
 
 // Login Route
-router.post('/login', (req, res) => {
-  let userData = req.body
+router.post('/login', AuthController.login)
 
-  User.findOne({ email: userData.email }, (error, user) => {
-    if(error){
-      console.log(error)
-    }else{
-      if(!user){
-        res.status(401).send('Invalid email')
-      }else {
-        if( user.password !== userData.password ){
-          res.status(401).send('Invalid password')
-        }else {
-          let payload = {subject: user._id}
-          let token = jwt.sign(payload, 'secretKey')
-          res.status(200).send({token})
-        }
-      }
-    }
-  })
-})
+// List Users api Route
+router.get('/users', verifyToken, UserController.list_users)
 
 // Events api Route
-router.get('/events', (req,res) => {
-
-  Event.find({ }, (error, data) => {
-    if(error){
-      console.log(error)
-    }else{
-      if(!data){
-        res.status(401).send('No records found!')
-      }else {
-        res.json(data)
-      }
-    }
-  })
-
-})
+router.get('/events', EventController.events)
 
 // Add Special api Route
-router.post('/special/add', verifyToken, (req, res) => {
+router.post('/special/add', verifyToken, EventController.add_special)
 
-  let specialData = req.body
-  let special = new Special(specialData)
+// List Special api Route
+router.get('/special', verifyToken, EventController.specials)
 
-  special.userID = req.userId
-
-  special.save((error, data) => {
-    if(error){
-      console.log(error)
-    }else{
-      res.send(data);
-    }
-  })
-
-})
-
-// Special api Route
-router.get('/special', verifyToken, (req, res) => {
-
-  // get specials from userId
-  Special.find({ userID: req.userId }, (error, data) => {
-    if(error){
-      console.log(error)
-    }else{
-      if(!data){
-        res.status(401).send('No records found!')
-      }else {
-        res.json(data)
-      }
-    }
-  })
-
-})
+// Delete Special Api
+router.post('/special/delete', verifyToken, EventController.delete_special)
 
 module.exports = router
