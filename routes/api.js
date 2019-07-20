@@ -5,14 +5,16 @@ const router = express.Router()
 const User = require('../models/user')
 const Event = require('../models/event')
 const Special = require('../models/special')
+const Package = require('../models/package')
 const mongoose = require('mongoose')
 
 // Import Controllers
 const AuthController = require('../controllers/authcontroller')
 const EventController = require('../controllers/eventcontroller')
 const UserController = require('../controllers/usercontroller')
+const PackageController = require('../controllers/packagecontroller')
 
-const db = "mongodb+srv://yusuf:yusuf@cluster0-hb6lo.mongodb.net/eventsdb?retryWrites=true&w=majority"
+const db = "mongodb+srv://yusuf:yusuf@cluster0-hb6lo.mongodb.net/traveldb?retryWrites=true&w=majority"
 
 // Connect MongoDB
 mongoose.connect(db, err => {
@@ -69,5 +71,8 @@ router.get('/special', verifyToken, EventController.specials)
 
 // Delete Special Api
 router.post('/special/delete', verifyToken, EventController.delete_special)
+
+// Packages api Route
+router.get('/packages', PackageController.packages)
 
 module.exports = router

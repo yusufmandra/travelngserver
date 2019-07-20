@@ -9,10 +9,10 @@ exports.login = (req, res) => {
       console.log(error)
     }else{
       if(!user){
-        res.status(401).send('Invalid email')
+        res.status(401).send('Invalid email or password.')
       }else {
         if( user.password !== userData.password ){
-          res.status(401).send('Invalid password')
+          res.status(401).send('Invalid email or password.')
         }else {
           let payload = {subject: user._id}
           let token = jwt.sign(payload, 'secretKey')
@@ -21,18 +21,43 @@ exports.login = (req, res) => {
       }
     }
   })
+
 }
 
 exports.register = (req, res) => {
+
   let userData = req.body
   let user = new User(userData)
-  user.save((error, registeredUser) => {
+
+  // Check user is already register.
+  User.findOne({ email: userData.email }, (error, userFound) => {
+
     if(error){
+
       console.log(error)
+
     }else{
-      let payload = {subject: registeredUser._id}
-      let token = jwt.sign(payload, 'secretKey')
-      res.status(200).send({token})
+
+      if(userFound){
+
+        res.status(401).send('email already registered')
+
+      }else {
+        // Save user data
+        user.save((error, registeredUser) => {
+          if(error){
+            console.log(error)
+          }else{
+            let payload = {subject: registeredUser._id}
+            let token = jwt.sign(payload, 'secretKey')
+            res.status(200).send({token})
+          }
+        })
+        // User Save
+      }
+      // userFound else
     }
+    // error else
   })
+  // User findOne
 }
