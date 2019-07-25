@@ -1,5 +1,10 @@
+// Auth token api
 const jwt = require('jsonwebtoken')
+// Models
 const User = require('../models/user')
+// Has Password
+const bcrypt = require('bcrypt')
+const saltRounds = 10;
 
 exports.login = (req, res) => {
   let userData = req.body
@@ -11,13 +16,17 @@ exports.login = (req, res) => {
       if(!user){
         res.status(401).send('Invalid email or password.')
       }else {
-        if( user.password !== userData.password ){
-          res.status(401).send('Invalid email or password.')
-        }else {
-          let payload = {subject: user._id}
-          let token = jwt.sign(payload, 'secretKey')
-          res.status(200).send({token})
-        }
+        const hash = user.password;
+        // Load hash from your password DB.
+        bcrypt.compare(userData.password, hash, function(err, response) {
+            if(response === true){
+              let payload = {subject: user._id}
+              let token = jwt.sign(payload, 'secretKey')
+              res.status(200).send({token})
+            }else{
+              res.status(401).send('Invalid email or password.')
+            }
+        });
       }
     }
   })
@@ -43,17 +52,21 @@ exports.register = (req, res) => {
         res.status(401).send('email already registered')
 
       }else {
-        // Save user data
-        user.save((error, registeredUser) => {
-          if(error){
-            console.log(error)
-          }else{
-            let payload = {subject: registeredUser._id}
-            let token = jwt.sign(payload, 'secretKey')
-            res.status(200).send({token})
-          }
-        })
-        // User Save
+        // Store hash in your password DB.
+        bcrypt.hash(user.password, saltRounds, function(err, hash) {
+          user.password = hash;
+          // Save user data
+          user.save((error, registeredUser) => {
+            if(error){
+              console.log(error)
+            }else{
+              let payload = {subject: registeredUser._id}
+              let token = jwt.sign(payload, 'secretKey')
+              res.status(200).send({token})
+            }
+          })
+          // User Save
+        });
       }
       // userFound else
     }
