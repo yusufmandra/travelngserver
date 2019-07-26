@@ -75,4 +75,7 @@ router.post('/special/delete', verifyToken, EventController.delete_special)
 // Packages api Route
 router.get('/packages', PackageController.packages)
 
+// Single Package api Route
+router.get('/package/:id', PackageController.single_package)
+
 module.exports = router

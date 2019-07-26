@@ -16,3 +16,20 @@ exports.packages = (req,res) => {
   });
 
 }
+
+// Single Package
+exports.single_package = (req,res) => {
+
+  Package.findOne({ _id: req.params.id }, (error, data) => {
+    if(error){
+      console.log(error);
+    }else{
+      if(!data){
+        res.status(401).send('No package found!');
+      }else {
+        res.json(data);
+      }
+    }
+  });
+
+}
