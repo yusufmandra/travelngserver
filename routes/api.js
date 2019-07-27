@@ -13,6 +13,7 @@ const AuthController = require('../controllers/authcontroller')
 const EventController = require('../controllers/eventcontroller')
 const UserController = require('../controllers/usercontroller')
 const PackageController = require('../controllers/packagecontroller')
+const BookingController = require('../controllers/bookingcontroller')
 
 const db = "mongodb+srv://yusuf:yusuf@cluster0-hb6lo.mongodb.net/traveldb?retryWrites=true&w=majority"
 
@@ -77,5 +78,8 @@ router.get('/packages', PackageController.packages)
 
 // Single Package api Route
 router.get('/package/:id', PackageController.single_package)
+
+// Create Order
+router.post('/order/create', BookingController.createOrder)
 
 module.exports = router
