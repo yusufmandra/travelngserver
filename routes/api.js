@@ -80,6 +80,6 @@ router.get('/packages', PackageController.packages)
 router.get('/package/:id', PackageController.single_package)
 
 // Create Order
-router.post('/order/create', BookingController.createOrder)
+router.post('/order/create', verifyToken, BookingController.createOrder)
 
 module.exports = router
