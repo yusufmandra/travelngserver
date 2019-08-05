@@ -7,7 +7,18 @@ const Event = require('../models/event')
 const Special = require('../models/special')
 const Package = require('../models/package')
 const mongoose = require('mongoose')
+const multer = require('multer')
 
+const storage = multer.diskStorage({ 
+  destination: function(req, file, cb){
+    cb(null, './uploads/');
+  },
+  filename: function(req, file, cb){
+    cb(null, new Date().toISOString() + '_' + file.originalname);
+  }
+});
+
+const upload = multer({storage: storage})
 // Import Controllers
 const AuthController = require('../controllers/authcontroller')
 const EventController = require('../controllers/eventcontroller')
@@ -72,6 +83,9 @@ router.get('/special', verifyToken, EventController.specials)
 
 // Delete Special Api
 router.post('/special/delete', verifyToken, EventController.delete_special)
+
+// Add Packages api Route
+router.post('/packages/add', upload.single('img'), PackageController.add_package)
 
 // Packages api Route
 router.get('/packages', PackageController.packages)

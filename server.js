@@ -7,6 +7,9 @@ const api = require('./routes/api')
 const app = express()
 app.use(cors())
 
+// Public folder
+app.use('/uploads', express.static('uploads'))
+
 app.use(bodyParser.json())
 
 app.use('/api', api)

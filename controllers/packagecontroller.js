@@ -33,3 +33,22 @@ exports.single_package = (req,res) => {
   });
 
 }
+
+exports.add_package = (req, res) => {
+
+  let packageData = req.body
+  let package = new Package(packageData)
+  // Set path
+  package.img = req.file.path;
+
+  package.save((error, data) => {
+    if(error){
+      console.log(error)
+    }else{
+      res.status(200).send(data)
+    }
+  })
+
+  // Package Save
+
+}
